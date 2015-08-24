@@ -1,0 +1,45 @@
+{% extends "index.html" %}
+{% block header %}
+{% endblock %}
+
+{% block main%}
+  <form action="" method="PUT" id="edit-meal" style="text-align:center;">
+    {{ form.csrf_token }}
+    <fieldset class="ui-grid-a">
+        <div class="ui-block-a"><label for="name">餐點名稱：</label></div>
+         <div class="ui-block-b">{{ form.name(placeholder='請輸入餐點名稱') }} </div>
+    </fieldset>
+    <fieldset class="ui-grid-a">
+        <div class="ui-block-a"><label for="price">售價：</label></div>
+        <div class="ui-block-b">{{ form.price(placeholder='請輸入價錢') }}</div>
+    </fieldset>
+    <fieldset class="ui-grid-a">
+        <div class="ui-block-a"><input class="ui-btn ui-corner-all ui-shadow" id="save" type="submit" value="儲存"/></div>
+        <div class="ui-block-b"><a class="ui-btn ui-btn-a ui-corner-all ui-shadow" href="/meals" data-ajax=false>返回</a></div>
+    </fieldset>
+  </form>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#edit-meal').submit(function (event) {
+      event.preventDefault();
+      $.ajax({
+        url: $(this).attr('action'),
+        data: $(this).serialize(),
+        method: 'PUT',
+        success: function (data, textStatus, xhr) {
+          alert(data['msg']);
+        },
+        error: function(xhr){
+            var jsonResponse = JSON.parse(xhr.responseText);
+            alert(jsonResponse['msg']);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
+

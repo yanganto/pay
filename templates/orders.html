@@ -1,0 +1,105 @@
+{% extends "index.html" %}
+{% block css %}
+	<style>
+		th {
+		    border-bottom: 1px solid #d6d6d6;
+		}
+		
+		tr:nth-child(even) {
+		    background: #e9e9e9;
+		}
+	</style>
+{% endblock %}
+{% block header %}
+    <h1>{{tableDes}}</h1> 
+    <div id="orders" style='text-align:center;'>
+        <tr>您尚未點餐</tr>
+    </div>
+{% endblock %}
+
+{% block main %}
+    <form id="meals" action="{{url_for('.orders') + code }}" method="POST" style='text-align:center;' >
+        <h1>本店現在沒有提供餐點</h1>        
+    </form>
+{% endblock %}
+
+{% block js %}
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript">
+      function cancel(order_id){
+        $.ajax({
+	      url:"{{ url_for('.orders') + code }}" + "?order_id=" + order_id ,
+          method: 'DELETE',
+	      success: function(data, textStatus, xhr){
+            alert(data['msg']);
+            update_orders();
+          },
+          error: function(xhr){
+            var jsonResponse = JSON.parse(xhr.responseText);
+            alert(jsonResponse['msg']);
+          }
+        });
+      }
+	  function update_meals(){
+	    $.ajax({
+	      url:"{{ url_for('.meals') }}",
+	      success: function(data, textStatus, xhr){
+	        $("#meals").html('');
+	        $("#meals").append(
+                "<table align='center'>" +
+                "<thead><tr><th></th><th>餐點</th><th>數量</th><th>附註</th></tr></thead>" +
+                "<tbody id='mealTable'></tbody>"+
+                "</table>" + 
+                "<input type='submit' value='下訂' >"
+            );
+	        $(data['meals']).each(function(i, el){
+	          var meal= el['name'] + "($" + el['price'] + ")";
+	          $("#mealTable").append(
+                "<tr><td><input type='checkbox' id='meal"+ el['id']+ "' name='meals' value='" + el['id'] + "'></td>" + 
+                "<td><label for='meal" + el['id'] + "'>" + meal + "</label></td>" +
+                "<td><select name=amount" + el['id'] + ">" +
+                    {% for i in range(20) %}
+                        "<option value={{i+1}}>{{i+1}}</option>"+
+                    {% endfor%}
+                "</select></td>" +
+                "<td><input type='text' name='comment" + el['id'] + "' placeholder='加註事項'></td></tr>"
+                );
+	        });  
+	      },
+          error: function(xhr){
+            var jsonResponse = JSON.parse(xhr.responseText);
+            alert(jsonResponse['msg']);
+          }
+	    });
+	  }
+	  function update_orders(){
+	    $.ajax({
+	      url:"{{ url_for('.orders') + code}}",
+	      success: function(data, textStatus, xhr){
+	        $("#orders").html('');
+	        $("#orders").append(
+                "<table align='center'>" +
+                "<thead><tr><th>餐點</th><th>數量</th><th>附註</th><th>狀態</th><th></th></tr></thead>" +
+                "<tbody id='orderTable'></tbody>"+
+                "</table>"
+            );
+	        $(data['orders']).each(function(i, el){
+	          var order = "<tr><td>" + el['meal_name'] + "</td><td>" + el['amount'] +"</td><td>"+  
+                el['comment'] +"</td><td>"+  el['state_name']; 
+              if( el['state_id'] == 1) order += "</td><td><button class='ui-btn ui-mini' onclick='cancel(" + el['id'] +")'>取消</button></td></tr>";
+	          $("#orderTable").append( order ); 
+	        });
+	      },
+          error: function(xhr){
+            var jsonResponse = JSON.parse(xhr.responseText);
+            alert(jsonResponse['msg']);
+          }
+	    });
+	  }
+	  // only execute after loading the whole HTML
+	  $(document).ready(function(){
+	    update_meals();
+	    update_orders();
+	  });
+	</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>PAY::{{title}}</title>
+        {% block css %}
+            <style>
+                h1{ text-align:center;}
+            </style>
+        {% endblock %}
+        <link rel="stylesheet" href="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css">
+    </head>
+<body>
+    <header data-role="header">
+        {% block header %}
+            <h1>小店點餐</h1>
+        {% endblock %}
+    </header>
+    <main class="ui-content">
+		{% block main %}
+	        <a href="{{url_for('.qr')}}" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow">桌號管理</a>
+	        <a href="{{url_for('.meals')}}" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow">餐點管理</a>
+	        <a href="{{url_for('.delivery')}}" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow">出餐管理</a>
+	        <a href="{{url_for('.init')}}" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow">資料庫管理</a>
+		{% endblock %}
+    </main>
+    <footer data-role="footer">
+        {% block footer %}
+        {% endblock %}
+    </footer>
+	{% block js %}
+	{% endblock %}
+    <script src="/static/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</body>
+</html>
+

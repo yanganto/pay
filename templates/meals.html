@@ -1,0 +1,86 @@
+{% extends "index.html" %}
+{% block css %}
+	<style>
+	tr:nth-child(even) {
+	    background: #e9e9e9;
+	}
+</style>
+{% endblock %}
+{% block header %}
+  <form action="{{ url_for('.meals') }}" method="post" id="new-meal">
+    {{ form.csrf_token }}
+    <fieldset class="ui-grid-a">
+        <h4 data-theme="a" style="text-align:center;">新增餐點</h4>
+    </fieldset>
+    <fieldset class="ui-grid-a">
+        <div  class="ui-block-a">{{ form.name(placeholder="請輸入餐點名稱") }} </div>
+        <div class="ui-block-b">{{ form.price(placeholder="請輸入餐點售價") }}</div>
+    </fieldset>
+    <fieldset class="ui-grid-a">
+        <div class="ui-block-a"><button class="ui-btn ui-btn-a ui-corner-all ui-shadow" style="width:100%;" type="submit">新增</button></div>
+        <div class="ui-block-b"><a class="ui-btn ui-btn-a ui-corner-all ui-shadow" href="/" style="width:100%;" data-ajax=false>返回</a></div>
+    </fieldset>
+  </form>
+{% endblock %}
+
+{% block main %}
+    <table style="text-align:center;" data-role="table" class="ui-responsive" id="meals">
+    </table>
+{% endblock %}
+
+{% block js %}
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript">
+      var deletMeal =  function(id){
+        $.ajax({
+            url:"{{ url_for('.meals') }}" + id,
+            method: "DELETE",
+	        success: function(data, textStatus, xhr){
+                alert(data['msg']);
+	            update_meals();
+	        },
+	        error: function(xhr){
+                var jsonResponse = JSON.parse(xhr.responseText);
+                alert(jsonResponse['msg']);
+            } 
+        });
+      }
+	  function update_meals(){
+	    $.ajax({
+	      url:"{{ url_for('.meals') }}",
+	      success: function(data, textStatus, xhr){
+	        $("#meals").html('');
+	        $(data['meals']).each(function(i, el){
+	          var link = 
+              "<td style='text-align:center;'>" + el['name'] +  "($" + el['price'] + ")" + "</td>" +
+              "<td style='text-align:center;'>" + '<a href="'+ el['_url'] +'" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-mini" data-ajax="false">修改</a>' + 
+              '<button  onclick="deletMeal(' +  el['id'] + ')" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-mini">刪除</button></td>'; 
+	          $("#meals").append("<tr>" + link + "</tr>");
+	        });
+	      }
+	    });
+	  }
+	  // only execute after loading the whole HTML
+	  $(document).ready(function(){
+	    $('#new-meal').submit(function(event){
+	      event.preventDefault();
+	      $.ajax({
+	        url: $(this).attr('action'), 
+	        data: $(this).serialize(),
+	        method: "POST",
+	        success: function(data, textStatus, xhr){
+                alert(data['msg']);
+	            update_meals();
+                $('#name').val("");
+                $('#price').val("");
+	        },
+	        error: function(xhr){
+                var jsonResponse = JSON.parse(xhr.responseText);
+                alert(jsonResponse['msg']);
+            } 
+	      });
+	    });
+	    update_meals();
+	  });
+	</script>
+{% endblock %}
